@@ -119,19 +119,22 @@ class LocationCompassManager(context: Context) {
         // Location — Robust offline-first registration
         // GPS Provider (Works 100% offline, sat-based)
         try {
-            if (locationManager.allProviders.contains(LocationManager.GPS_PROVIDER)) {
-                locationManager.requestLocationUpdates(
+            if (checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+    locationManager.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER, 3000L, 5f, locationListener
                 )
                 locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)?.let {
                     locationListener.onLocationChanged(it)
                 }
-            }
-        } catch (_: Exception) {}
+            } else {
+    // Permission is not granted, request it
+    requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_LOCATION_PERMISSION)}
+} catch (e: SecurityException)  {}
 
         // Network Provider (Works online, cell/wifi-based)
         try {
-            if (locationManager.allProviders.contains(LocationManager.NETWORK_PROVIDER)) {
+            if (checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                (locationManager.allProviders.contains(LocationManager.NETWORK_PROVIDER)) {
                 locationManager.requestLocationUpdates(
                     LocationManager.NETWORK_PROVIDER, 5000L, 10f, locationListener
                 )
@@ -139,8 +142,11 @@ class LocationCompassManager(context: Context) {
                     locationListener.onLocationChanged(it)
                 }
             }
-        } catch (_: Exception) {}
-    }
+        } else {
+    // Permission is not granted, request it
+    requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_LOCATION_PERMISSION)}
+} catch (e: SecurityException)  {}
+    
 
     fun stop() {
         sensorManager.unregisterListener(sensorListener)
