@@ -69,6 +69,7 @@ class MainActivity : ComponentActivity() {
             val weather     by vm.weather.collectAsStateWithLifecycle()
             val location    by vm.location.collectAsStateWithLifecycle()
             val bearing     by vm.compassBearing.collectAsStateWithLifecycle()
+            val canLoggerState by vm.canLoggerState.collectAsStateWithLifecycle()
             val isWifi      by vm.isWifi.collectAsStateWithLifecycle()
             val isData      by vm.isData.collectAsStateWithLifecycle()
             val isDayModeVM by vm.isDayMode.collectAsStateWithLifecycle()
@@ -250,6 +251,18 @@ class MainActivity : ComponentActivity() {
                                         onAppClick          = { app -> vm.launchApp(app.packageName) },
                                         onPickerSelect      = { slot, app -> vm.assignShortcut(slot, app) },
                                         onCarPlaySelect     = { app -> vm.assignPickerApp(app) }
+                                    )
+
+                                    NavDestination.CAN_LOGGER -> CanLoggerScreen(
+                                        state = canLoggerState,
+                                        accent = accent,
+                                        onStart = vm::startCanLogging,
+                                        onStop = vm::stopCanLogging,
+                                        onClear = vm::clearCanLog,
+                                        onSave = vm::saveCanLogSnapshot,
+                                        onMarker = vm::addCanLogMarker,
+                                        onAddAction = vm::addCanBroadcastAction,
+                                        onRemoveAction = vm::removeCanBroadcastAction
                                     )
 
                                     NavDestination.SETTINGS -> SettingsScreen(

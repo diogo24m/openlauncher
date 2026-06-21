@@ -136,6 +136,15 @@ fun Sidebar(
             onClick      = { onNavigate(NavDestination.APP_LIBRARY) }
         )
         NavButton(
+            icon         = Icons.Default.BugReport,
+            label        = "CAN Logger",
+            isActive     = currentDest == NavDestination.CAN_LOGGER,
+            accent       = accent,
+            iconInactive = iconInactive,
+            isHorizontal = isHorizontal,
+            onClick      = { onNavigate(NavDestination.CAN_LOGGER) }
+        )
+        NavButton(
             icon         = Icons.Default.Settings,
             label        = "Settings",
             isActive     = currentDest == NavDestination.SETTINGS,
@@ -169,7 +178,7 @@ fun Sidebar(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .fillMaxHeight()
-                    .padding(horizontal = 150.dp)
+                    .padding(horizontal = 210.dp)
                     .horizontalScroll(rememberScrollState()),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -186,9 +195,11 @@ fun Sidebar(
                 if (!settings.bottomBarShortcutsRight) {
                     NavButton(Icons.Default.Home,     "Home",     currentDest == NavDestination.HOME,        accent, iconInactive, true) { onNavigate(NavDestination.HOME) }
                     NavButton(Icons.Default.Settings, "Settings", currentDest == NavDestination.SETTINGS,    accent, iconInactive, true) { onNavigate(NavDestination.SETTINGS) }
+                    NavButton(Icons.Default.BugReport, "CAN",     currentDest == NavDestination.CAN_LOGGER,  accent, iconInactive, true) { onNavigate(NavDestination.CAN_LOGGER) }
                     NavButton(Icons.Default.Apps,     "Apps",     currentDest == NavDestination.APP_LIBRARY, accent, iconInactive, true) { onNavigate(NavDestination.APP_LIBRARY) }
                 } else {
                     NavButton(Icons.Default.Apps,     "Apps",     currentDest == NavDestination.APP_LIBRARY, accent, iconInactive, true) { onNavigate(NavDestination.APP_LIBRARY) }
+                    NavButton(Icons.Default.BugReport, "CAN",     currentDest == NavDestination.CAN_LOGGER,  accent, iconInactive, true) { onNavigate(NavDestination.CAN_LOGGER) }
                     NavButton(Icons.Default.Settings, "Settings", currentDest == NavDestination.SETTINGS,    accent, iconInactive, true) { onNavigate(NavDestination.SETTINGS) }
                     NavButton(Icons.Default.Home,     "Home",     currentDest == NavDestination.HOME,        accent, iconInactive, true) { onNavigate(NavDestination.HOME) }
                 }

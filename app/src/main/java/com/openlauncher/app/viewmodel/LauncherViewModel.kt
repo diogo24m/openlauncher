@@ -13,6 +13,7 @@ import android.provider.Settings as AndroidSettings
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.openlauncher.app.data.AppSettings
+import com.openlauncher.app.data.CanLogger
 import com.openlauncher.app.data.DayNightMode
 import com.openlauncher.app.data.DefaultShortcutIcon
 import com.openlauncher.app.data.GRID_COLS
@@ -44,6 +45,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     private val settingsRepo = SettingsRepository(application)
     private val locationMgr  = LocationCompassManager(application)
+    private val canLogger    = CanLogger(application, viewModelScope)
 
     // ── Settings ──────────────────────────────────────────────────────────────
     private val _settingsLoaded = MutableStateFlow(false)
@@ -60,6 +62,16 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     fun resetSettings() {
         viewModelScope.launch { settingsRepo.resetToDefaults() }
     }
+
+    val canLoggerState = canLogger.state
+
+    fun startCanLogging() = canLogger.start()
+    fun stopCanLogging() = canLogger.stop()
+    fun clearCanLog() = canLogger.clear()
+    fun saveCanLogSnapshot() { canLogger.saveSnapshot() }
+    fun addCanLogMarker(label: String) = canLogger.addMarker(label)
+    fun addCanBroadcastAction(action: String) = canLogger.addCustomAction(action)
+    fun removeCanBroadcastAction(action: String) = canLogger.removeCustomAction(action)
 
     // ── Navigation ────────────────────────────────────────────────────────────
     private val _nav = MutableStateFlow(NavDestination.HOME)
@@ -751,6 +763,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     override fun onCleared() {
         super.onCleared()
         locationMgr.stop()
+        canLogger.stop()
         radioObserver?.let { getApplication<Application>().contentResolver.unregisterContentObserver(it) }
         radioObserver = null
     }

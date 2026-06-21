@@ -1,6 +1,8 @@
 package com.openlauncher.app.util
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -9,6 +11,7 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.math.atan2
@@ -24,7 +27,7 @@ data class LocationData(
     val bearing: Float? = 0f
 )
 
-class LocationCompassManager(context: Context) {
+class LocationCompassManager(private val context: Context) {
 
     private val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private val sensorManager   = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -116,25 +119,27 @@ class LocationCompassManager(context: Context) {
             sensorManager.registerListener(sensorListener, it, SensorManager.SENSOR_DELAY_UI)
         }
 
-        // Location — Robust offline-first registration
-        // GPS Provider (Works 100% offline, sat-based)
+        val hasFineLocation = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        if (!hasFineLocation) return
+
         try {
-            if (checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-    locationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER, 3000L, 5f, locationListener
-                )
-                locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)?.let {
-                    locationListener.onLocationChanged(it)
-                }
-            } else {
-    // Permission is not granted, request it
-    requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_LOCATION_PERMISSION)}
-} catch (e: SecurityException)  {}
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                3000L,
+                5f,
+                locationListener
+            )
+            locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)?.let {
+                locationListener.onLocationChanged(it)
+            }
+        } catch (_: SecurityException) {}
 
         // Network Provider (Works online, cell/wifi-based)
         try {
-            if (checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                (locationManager.allProviders.contains(LocationManager.NETWORK_PROVIDER)) {
+            if (locationManager.allProviders.contains(LocationManager.NETWORK_PROVIDER)) {
                 locationManager.requestLocationUpdates(
                     LocationManager.NETWORK_PROVIDER, 5000L, 10f, locationListener
                 )
@@ -142,11 +147,8 @@ class LocationCompassManager(context: Context) {
                     locationListener.onLocationChanged(it)
                 }
             }
-        } else {
-    // Permission is not granted, request it
-    requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_LOCATION_PERMISSION)}
-} catch (e: SecurityException)  {}
-    
+        } catch (_: SecurityException) {}
+    }
 
     fun stop() {
         sensorManager.unregisterListener(sensorListener)
